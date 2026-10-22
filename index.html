@@ -7,12 +7,9 @@
 <title>Casa · Finanzas compartidas</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 <div id="toast" role="status" aria-live="polite"></div>
-
 <main class="shell">
-
 <header class="top">
   <div>
     <p class="eyebrow">NUESTRO HOGAR</p>
@@ -24,130 +21,119 @@
 
 <section id="setup" class="panel narrow hidden">
   <h2>Primero conecta Supabase</h2>
-  <p>Comprueba la URL y la clave pública en <code>config.js</code>.</p>
-  <p class="muted">Nunca introduzcas claves secretas en esta web.</p>
+  <p>Comprueba la configuración de <code>config.js</code>.</p>
 </section>
 
 <section id="login" class="panel narrow">
   <div class="section-tag">ACCESO PRIVADO</div>
   <h2>Bienvenidos a casa</h2>
-  <p class="muted">Iniciad sesión con vuestra cuenta compartida de Supabase.</p>
-
+  <p class="muted">Iniciad sesión con vuestra cuenta compartida.</p>
   <form id="loginForm">
-    <label>
-      Correo de acceso
+    <label>Correo de acceso
       <input id="email" type="email" autocomplete="username" required>
     </label>
-    <label>
-      Contraseña
+    <label>Contraseña
       <input id="password" type="password" autocomplete="current-password" required>
     </label>
     <button class="primary" type="submit">Entrar al panel →</button>
   </form>
-
   <p id="loginError" class="error" role="alert"></p>
 </section>
 
 <div id="dashboard" class="hidden">
+  <nav class="tabs" aria-label="Secciones">
+    <button data-tab="resumen" class="active">Resumen</button>
+    <button data-tab="compras">Compras y cuotas</button>
+    <button data-tab="calendario">Vencimientos</button>
+    <button data-tab="cuentas">Cuentas</button>
+  </nav>
 
-<nav class="tabs" aria-label="Secciones">
-  <button data-tab="resumen" class="active">Resumen</button>
-  <button data-tab="compras">Compras y cuotas</button>
-  <button data-tab="calendario">Vencimientos</button>
-  <button data-tab="cuentas">Cuentas</button>
-</nav>
+  <div id="resumen" class="view">
+    <div class="stats">
+      <article class="stat">
+        <p>Total registrado</p>
+        <strong id="total">—</strong>
+        <small>Compras y gastos</small>
+      </article>
+      <article class="stat">
+        <p>Ya pagado</p>
+        <strong id="paid">—</strong>
+        <small>Cuotas realizadas</small>
+      </article>
+      <article class="stat">
+        <p>Pendiente</p>
+        <strong id="pending">—</strong>
+        <small>Importe por liquidar</small>
+      </article>
+      <article class="stat">
+        <p>Próximos 30 días</p>
+        <strong id="soon">—</strong>
+        <small>Vencimientos pendientes</small>
+      </article>
+    </div>
 
-<div id="resumen" class="view">
-  <div class="stats">
-    <article class="stat">
-      <p>Total registrado</p>
-      <strong id="total">—</strong>
-      <small>Compras y gastos</small>
-    </article>
-    <article class="stat">
-      <p>Ya pagado</p>
-      <strong id="paid">—</strong>
-      <small>Cuotas realizadas</small>
-    </article>
-    <article class="stat">
-      <p>Pendiente</p>
-      <strong id="pending">—</strong>
-      <small>Importe por liquidar</small>
-    </article>
-    <article class="stat">
-      <p>Próximos 30 días</p>
-      <strong id="soon">—</strong>
-      <small>Vencimientos pendientes</small>
-    </article>
+    <div class="two">
+      <section class="panel">
+        <div class="heading">
+          <h2>Próximos pagos</h2>
+          <span>Lo que viene</span>
+        </div>
+        <div id="nextList"></div>
+      </section>
+      <section class="panel">
+        <div class="heading">
+          <h2>Entre vosotros</h2>
+          <span>Según pagos realizados</span>
+        </div>
+        <div id="settlement"></div>
+        <p class="hint">Balance calculado según quién pagó y el reparto de cada compra. No incluye transferencias de compensación.</p>
+      </section>
+    </div>
   </div>
 
-  <div class="two">
-    <section class="panel">
-      <div class="heading">
-        <h2>Próximos pagos</h2>
-        <span>Lo que viene</span>
+  <div id="compras" class="view hidden">
+    <div class="heading mainheading">
+      <div>
+        <h2>Compras y financiaciones</h2>
+        <p class="muted">Compras al contado y pagos financiados.</p>
       </div>
-      <div id="nextList"></div>
-    </section>
+      <button id="newPurchase" class="primary">+ Añadir compra</button>
+    </div>
+    <div id="purchaseList" class="cards"></div>
+  </div>
 
-    <section class="panel">
-      <div class="heading">
-        <h2>Entre vosotros</h2>
-        <span>Según pagos realizados</span>
+  <div id="calendario" class="view hidden">
+    <div class="heading mainheading">
+      <div>
+        <h2>Calendario de pagos</h2>
+        <p class="muted">Controla los vencimientos y pagos realizados.</p>
       </div>
-      <div id="settlement"></div>
-      <p class="hint">Calculado según quién pagó realmente y el reparto acordado.</p>
+      <label class="filter">Mostrar
+        <select id="paymentFilter">
+          <option value="pending">Pendientes</option>
+          <option value="all">Todos</option>
+          <option value="paid">Pagados</option>
+        </select>
+      </label>
+    </div>
+    <div id="installmentList" class="panel"></div>
+  </div>
+
+  <div id="cuentas" class="view hidden">
+    <div class="heading mainheading">
+      <div>
+        <h2>Cuentas de débito</h2>
+        <p class="muted">Identifica de dónde se cobrará cada cuota.</p>
+      </div>
+      <button id="newAccount" class="primary">+ Añadir cuenta</button>
+    </div>
+    <div id="accountList" class="cards"></div>
+    <section class="panel">
+      <h3>Copias de seguridad</h3>
+      <p class="muted">Descarga tus registros para archivarlos.</p>
+      <button id="exportData" class="secondary">Descargar respaldo JSON</button>
     </section>
   </div>
-</div>
-
-<div id="compras" class="view hidden">
-  <div class="heading mainheading">
-    <div>
-      <h2>Compras y financiaciones</h2>
-      <p class="muted">Registra compras al contado o financiadas.</p>
-    </div>
-    <button id="newPurchase" class="primary">+ Añadir compra</button>
-  </div>
-  <div id="purchaseList" class="cards"></div>
-</div>
-
-<div id="calendario" class="view hidden">
-  <div class="heading mainheading">
-    <div>
-      <h2>Calendario de pagos</h2>
-      <p class="muted">Controla los próximos vencimientos.</p>
-    </div>
-    <label class="filter">
-      Mostrar
-      <select id="paymentFilter">
-        <option value="pending">Pendientes</option>
-        <option value="all">Todos</option>
-        <option value="paid">Pagados</option>
-      </select>
-    </label>
-  </div>
-  <div id="installmentList" class="panel"></div>
-</div>
-
-<div id="cuentas" class="view hidden">
-  <div class="heading mainheading">
-    <div>
-      <h2>Cuentas de débito</h2>
-      <p class="muted">Identifica de dónde se cobrará cada cuota.</p>
-    </div>
-    <button id="newAccount" class="primary">+ Añadir cuenta</button>
-  </div>
-
-  <div id="accountList" class="cards"></div>
-
-  <section class="panel">
-    <h3>Copias de seguridad</h3>
-    <p class="muted">Exporta tus datos a JSON.</p>
-    <button id="exportData" class="secondary">Descargar respaldo JSON</button>
-  </section>
-</div>
-
 </div>
 </main>
 
@@ -157,10 +143,11 @@
     <h2 id="purchaseTitle">Nueva compra</h2>
     <button type="button" class="quiet close">✕</button>
   </div>
+
   <input type="hidden" id="purchaseId">
 
   <label>Nombre / concepto
-    <input id="pName" maxlength="120" required placeholder="Ej. Sofá del salón">
+    <input id="pName" maxlength="120" required placeholder="Ej. CasaViva">
   </label>
 
   <div class="formgrid">
@@ -183,13 +170,13 @@
     <label>Parte de persona A (%)
       <input id="pSplit" type="number" min="0" max="100" step="0.01" value="50" required>
     </label>
-    <label>Número de cuotas
-      <input id="pCount" type="number" min="1" max="120" value="1" required>
+    <label>Número total de cuotas
+      <input id="pCount" type="number" min="1" max="120" step="1" value="1" required>
     </label>
   </div>
 
   <div class="formgrid">
-    <label>Primera fecha de débito
+    <label>Primera fecha de débito pendiente
       <input id="pDate" type="date" required>
     </label>
     <label>Cuenta de débito
@@ -197,11 +184,38 @@
     </label>
   </div>
 
+  <div id="initialPaymentBlock" class="panel"
+       style="margin:16px 0;padding:16px;background:#f7f1e7">
+    <label style="display:flex;align-items:center;gap:9px">
+      <input id="pFirstPaid" type="checkbox" style="width:auto">
+      <strong>La primera cuota ya se pagó al comprar</strong>
+    </label>
+
+    <div id="initialPaymentFields" class="hidden" style="margin-top:12px">
+      <div class="formgrid">
+        <label>Importe de la primera cuota (€)
+          <input id="pFirstAmount" type="number" min="0.01" step="0.01">
+        </label>
+        <label>Fecha de ese pago
+          <input id="pFirstDate" type="date">
+        </label>
+      </div>
+
+      <label>¿Quién pagó esa primera cuota?
+        <select id="pFirstPayer">
+          <option value="a">Persona A</option>
+          <option value="b">Persona B</option>
+        </select>
+      </label>
+      <p class="hint">El número total de cuotas incluye la primera ya pagada. El saldo restante se repartirá entre las demás cuotas.</p>
+    </div>
+  </div>
+
   <label>Notas
     <textarea id="pNotes" rows="2" maxlength="500"></textarea>
   </label>
 
-  <p class="hint">Las nuevas compras generan cuotas mensuales automáticamente.</p>
+  <p class="hint">Las cuotas pendientes se programan mensualmente. Puedes editar individualmente su importe, fecha, estado y pagador.</p>
 
   <div class="actions">
     <button type="button" class="secondary close">Cancelar</button>
@@ -216,15 +230,12 @@
     <h2>Nueva cuenta</h2>
     <button type="button" class="quiet close">✕</button>
   </div>
-
   <label>Nombre de referencia
     <input id="aName" maxlength="80" required placeholder="Ej. Revolut">
   </label>
-
   <label>Titular o nota
     <input id="aOwner" maxlength="100" placeholder="Ej. Persona A">
   </label>
-
   <div class="actions">
     <button type="button" class="secondary close">Cancelar</button>
     <button class="primary">Guardar</button>
@@ -238,7 +249,6 @@
     <h2>Editar cuota</h2>
     <button type="button" class="quiet close">✕</button>
   </div>
-
   <input type="hidden" id="iId">
   <p id="iDescription" class="muted"></p>
 
@@ -284,18 +294,13 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
-
 <script>
-window.addEventListener("load", function () {
+window.addEventListener("load",function(){
   if (!window.supabase || !window.CASA_CONFIG) {
-    const error = document.getElementById("loginError");
-    if (error) {
-      error.textContent =
-        "No se pudo cargar la conexión. Recarga la página y comprueba tu conexión a Internet.";
-    }
+    const el=document.getElementById("loginError");
+    if(el) el.textContent="No se pudo cargar la conexión. Recarga la página.";
   }
 });
 </script>
-
 </body>
 </html>
